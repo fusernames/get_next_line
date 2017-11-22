@@ -1,28 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: alcaroff <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/21 07:42:18 by alcaroff          #+#    #+#             */
-/*   Updated: 2017/11/22 18:12:55 by alcaroff         ###   ########.fr       */
+/*   Created: 2017/11/22 15:40:53 by alcaroff          #+#    #+#             */
+/*   Updated: 2017/11/22 15:41:52 by alcaroff         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#include "get_next_line.h"
 
-# include <unistd.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <fcntl.h>
-# include <stdlib.h>
-# include <stdio.h>
-# include "libft/libft.h"
+int			main(void)
+{
+	char	*tab;
+	int		fd;
+	int		i = 0;
 
-# define BUFF_SIZE 20
-
-int		get_next_line(const int fd, char **line);
-
-#endif
+	tab = NULL;
+	fd = open("test", O_RDONLY);
+	while(get_next_line(fd, &tab))
+	{
+		printf("%d -> ", i);
+		printf("%s\n", tab);
+		i++;
+	}
+	//printf("%s", tab);
+}
