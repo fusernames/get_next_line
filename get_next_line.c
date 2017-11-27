@@ -5,71 +5,75 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: alcaroff <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/22 14:19:18 by alcaroff          #+#    #+#             */
-/*   Updated: 2017/11/22 18:20:19 by alcaroff         ###   ########.fr       */
+/*   Created: 2017/11/24 15:29:56 by alcaroff          #+#    #+#             */
+/*   Updated: 2017/11/27 14:34:28 by alcaroff         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char		*self_join(char *s1, const char *s2)
+static char		*self_join(char *s1, const char *s2)
 {
 	char	*new;
 
+	if (s1 == NULL)
+		s1 = ft_memalloc(1);
 	new = ft_strjoin(s1, s2);
 	free(s1);
 	return (new);
 }
 
-int			replace_next_cr(char *line)
+static size_t	get_len(char *str)
 {
-	int			i;
+	size_t	i;
 
 	i = 0;
-	while (line[i] && line[i] != '\n')
+	while (str[i] && str[i] != '\n')
 		i++;
-	if (line[i] == '\0')
-		return (0);
-	line[i] = '\0';
 	return (i);
 }
 
-int			get_next_line(const int fd, char **line)
+static int		next_line(ssize_t ret, char **saved, char **line)
 {
-	int			i;
-	static int	index = 0;
-	char		*tmp;
-	char		buf[BUFF_SIZE + 1];
-	int			ret;
+	size_t	len;
+	char	*tmp;
 
-	ret = 0;
-	if (index < 0)
+	tmp = *saved;
+	if (ret < 0)
+		return (-1);
+	if (((len = get_len(*saved)) == 0 || *saved == NULL) && ret == 0)
 		return (0);
-	if (!index)
-		*line = ft_memalloc(1);
-	if (index)
-	{
-		tmp = *line;
-		*line = ft_strdup(&(*line)[index + 1]);
-		free(tmp);
-		if ((index = replace_next_cr(*line)))
-			return (1);
-	}
-	if (!index)
-	{
-		while ((ret = read(fd, buf, BUFF_SIZE)))
-		{
-			buf[ret] = '\0';
-			i = 0;
-			while (buf[i] && buf[i] != '\n')
-				i++;
-			*line = self_join(*line, buf);
-			if (buf[i] == '\n')
-				break ;
-		}
-	}
-	index = replace_next_cr(*line);
-	if (ret <= 0)
-		index = -1;
+	if (!(*line = ft_strndup(*saved, len)))
+		return (-1);
+	if ((*saved)[len] == '\n')
+		len++;
+	if (!(*saved = ft_strdup(&(*saved)[len])))
+		return (-1);
+	free(tmp);
 	return (1);
+}
+
+int				get_next_line(const int fd, char **line)
+{
+	static char		*saved = NULL;
+	char			buf[BUFF_SIZE + 1];
+	ssize_t			ret;
+
+	ret = 1;
+	if (fd < 0 || line == NULL)
+		return (-1);
+	if (saved)
+	{
+		if (saved[get_len(saved)])
+			return (next_line(ret, &saved, line));
+	}
+	while ((ret = read(fd, buf, BUFF_SIZE)) > 0)
+	{
+		buf[ret] = '\0';
+		if (!(saved = self_join(saved, buf)))
+			return (-1);
+		if (ft_strchr(buf, '\n'))
+			break ;
+	}
+	return (next_line(ret, &saved, line));
 }
