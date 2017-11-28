@@ -6,7 +6,7 @@
 /*   By: alcaroff <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/24 15:29:56 by alcaroff          #+#    #+#             */
-/*   Updated: 2017/11/27 17:52:16 by alcaroff         ###   ########.fr       */
+/*   Updated: 2017/11/27 16:16:05 by alcaroff         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,13 +69,11 @@ int				get_next_line(const int fd, char **line)
 	}
 	while ((ret = read(fd, buf, BUFF_SIZE)) > 0)
 	{
-		printf("%zu\n", ret);
 		buf[ret] = '\0';
 		if (!(saved = self_join(saved, buf)))
 			return (-1);
 		if (ft_strchr(buf, '\n'))
 			break ;
 	}
-	printf("%zd\n", ret);
 	return (next_line(ret, &saved, line));
 }
